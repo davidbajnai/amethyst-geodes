@@ -1,0 +1,70 @@
+Sample,Mine,Mineral,d18O,d13C,Reference,Type
+15251,Salles,Calcite (Cc-3),25.80,-4.80,Gilg2003,early
+15252,Salles,Calcite (Cc-3),24.20,-6.30,Gilg2003,early
+15257,Salles,Calcite (Cc-4),25.30,-7.00,Gilg2003,late
+15258,Salles,Calcite (Cc-4),24.60,-5.80,Gilg2003,late
+15259,Salles,Calcite (Cc-3),24.40,-5.70,Gilg2003,early
+15260,Salles,Calcite (Cc-4),23.80,-5.40,Gilg2003,late
+15261,Salles,Calcite (Cc-4),25.00,-7.30,Gilg2003,late
+15262,Salles,Calcite (Cc-3),24.50,-5.40,Gilg2003,early
+15264a,Salles,Calcite (Cc-1),24.90,-5.90,Gilg2003,early
+15264b,Salles,Calcite (Cc-4),24.10,-5.50,Gilg2003,late
+15273,Salles,Calcite (Cc-3),24.20,-6.30,Gilg2003,early
+15285,Célio,Calcite (Cc-3),27.00,-3.40,Gilg2003,early
+15288,Célio,Calcite (Cc-3),26.10,-4.70,Gilg2003,early
+15291,Célio,Calcite (Cc-3),24.10,-3.60,Gilg2003,early
+15292,Célio,Calcite (Cc-2),25.10,-4.50,Gilg2003,early
+15300,Testa,Calcite (Cc-3),26.50,-4.30,Gilg2003,early
+15301,Testa,Calcite (Cc-4),26.10,-4.60,Gilg2003,late
+15311,Testa,Calcite (Cc-3),25.50,-3.00,Gilg2003,early
+15313,Testa,Calcite (Cc-3),25.60,-2.90,Gilg2003,early
+15315,Testa,Calcite (Cc-3),24.40,-4.70,Gilg2003,early
+15317,Testa,Calcite (Cc-4),24.40,-4.60,Gilg2003,late
+15318,Testa,Calcite (Cc-4),24.10,-5.10,Gilg2003,late
+15323,Narciso,Calcite (Cc-3),25.30,-3.20,Gilg2003,early
+15331,Mioto,Calcite (Cc-3),24.80,-5.80,Gilg2003,early
+15336,Zanon,Calcite (Cc-4),26.30,-18.40,Gilg2003,late
+15337,Zanon,Calcite (Cc-4),25.30,-9.20,Gilg2003,late
+15338a,Zanon,Calcite (Cc-4),26.10,-17.80,Gilg2003,late
+15338b,Zanon,Calcite (Cc-4),25.60,-17.70,Gilg2003,late
+15340,Zanon,Calcite (Cc-3),25.40,-3.80,Gilg2003,early
+15341,Zanon,Calcite (Cc-4),26.20,-17.70,Gilg2003,late
+15342,Zanon,Calcite (Cc-4),25.60,-17.40,Gilg2003,late
+15349,Simonetti,Calcite (Cc-4),25.30,-8.00,Gilg2003,late
+15352,Simonetti,Calcite (Cc-3),27.10,-6.30,Gilg2003,early
+15357,Simonetti,Calcite (Cc-4),25.50,-6.80,Gilg2003,late
+15359,Simonetti,Calcite (Cc-4),26.00,-10.20,Gilg2003,late
+15376,Bortoluzzi,Calcite (Cc-4),25.90,-17.00,Gilg2003,late
+15377a,Bortoluzzi,Calcite (Cc-4 core),24.70,-3.40,Gilg2003,late
+15377b,Bortoluzzi,Calcite (Cc-4 rim),26.20,-17.20,Gilg2003,late
+15377-1,Bortoluzzi,Calcite (Cc-4 core),24.70,-2.20,Gilg2003,late
+15377-2,Bortoluzzi,Calcite (Cc-4 core),24.40,-2.20,Gilg2003,late
+15377-3,Bortoluzzi,Calcite (Cc-4 core),25.30,-1.90,Gilg2003,late
+15377-4,Bortoluzzi,Calcite (Cc-4 core),25.30,-1.90,Gilg2003,late
+15377-5,Bortoluzzi,Calcite (Cc-4 core),24.50,-1.80,Gilg2003,late
+15377-6,Bortoluzzi,Calcite (Cc-4 core),23.80,-1.80,Gilg2003,late
+15377-7,Bortoluzzi,Calcite (Cc-4 core),23.50,-1.50,Gilg2003,late
+15377-8,Bortoluzzi,Calcite (Cc-4 core),25.10,-5.50,Gilg2003,late
+15377-9,Bortoluzzi,Calcite (Cc-4 rim),25.70,-16.70,Gilg2003,late
+15377-10,Bortoluzzi,Calcite (Cc-4 rim),25.70,-18.50,Gilg2003,late
+15372,Bortoluzzi,Calcite (Cc-4),25.80,-17.80,Gilg2003,late
+15379,Trock,Calcite (Cc-4),26.10,-18.70,Gilg2003,late
+15832 rim,,,25.64,-16.77,Morteani2010,late
+15830,,,25.64,-16.45,Morteani2010,late
+15840,,,25.40,-16.23,Morteani2010,late
+15843 rim,,,25.27,-16.10,Morteani2010,late
+15833 rim,,,25.69,-14.47,Morteani2010,late
+15850,,,25.62,-12.91,Morteani2010,late
+15803 b,,,21.19,-10.44,Morteani2010,early
+15806,,,20.97,-10.33,Morteani2010,early
+15833 core,,,24.58,-9.84,Morteani2010,early
+15803 a,,,21.81,-9.81,Morteani2010,early
+15856,,,21.37,-9.62,Morteani2010,early
+15852,,,21.91,-9.57,Morteani2010,early
+15845,,,20.48,-9.53,Morteani2010,early
+15854,,,20.15,-9.30,Morteani2010,early
+15809,,,22.43,-9.17,Morteani2010,early
+15843 core,,,23.38,-9.15,Morteani2010,early
+15808,,,24.06,-9.01,Morteani2010,early
+15843,,,24.83,-8.45,Morteani2010,early
+15832 core,,,20.21,-8.27,Morteani2010,early
