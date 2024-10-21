@@ -1,9 +1,11 @@
 # The following code is used to:
-# scale the TILDAS data based on the accepted values for the reference gases
+# Scale the TILDAS data based on the accepted values of the in-house reference gases
 
-# INPUT:  UG all replicates.csv
+# INPUT:    UG all replicates.csv
 
-# OUTPUT: UG Figure S3.png, UG Figure S4.png, UG Table S4.csv
+# OUTPUT:   UG Figure S3.png
+#           UG Figure S4.png
+#           UG Table S4.csv
 
 # >>>>>>>>>
 
@@ -86,14 +88,14 @@ def scaleData(df, project):
         light_d18O_measured = group[group["SampleName"].str.contains("light")]["d18O"].mean()
         light_d17O_measured = group[group["SampleName"].str.contains("light")]["d17O"].mean()
 
-        # Accepted CO2 values - values calculated in OH2 scale reference.py
+        # Accepted CO2 values - see Bajnai et al. (2024, Chem Geol) for details
         heavy_d18O_accepted = 76.820
         heavy_Dp17O_accepted = -213
-        heavy_d17O_accepted = unprime(heavy_Dp17O_accepted/1000 + 0.528 * prime(heavy_d18O_accepted))
+        heavy_d17O_accepted = d17O(heavy_d18O_accepted, heavy_Dp17O_accepted)
 
         light_d18O_accepted = -1.509
         light_Dp17O_accepted = -141
-        light_d17O_accepted = unprime(light_Dp17O_accepted/1000 + 0.528 * prime(light_d18O_accepted))
+        light_d17O_accepted = d17O(light_d18O_accepted, light_Dp17O_accepted)
 
         # Calculate the scaling factors
         slope_d18O = (light_d18O_accepted - heavy_d18O_accepted) / (light_d18O_measured - heavy_d18O_measured)
