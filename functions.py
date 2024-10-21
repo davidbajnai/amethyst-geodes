@@ -38,6 +38,7 @@ def mix_d17O(d18O_A, d17O_A=None, D17O_A=None, d18O_B=None, d17O_B=None, D17O_B=
     return df
 
 
+
 def confidence_ellipse(x, y, ax, n_std=2, facecolor='none', **kwargs):
     """
     Create a plot of the covariance confidence ellipse of *x* and *y*.

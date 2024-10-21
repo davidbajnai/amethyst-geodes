@@ -113,8 +113,8 @@ ax.scatter(prime(df_meteoric_w["d18O"]), Dp17O(df_meteoric_w["d17O"], df_meteori
            label="modern meteoric waters")
 
 # Plot measured geode waters
-confidence_ellipse(prime(df_geode_w["d18O"]), df_geode_w["Dp17O"], ax, n_std=2,
-                   edgecolor="#005752", zorder=1, lw=1)
+confidence_ellipse(prime(df_geode_w["d18O"]), df_geode_w["Dp17O"], ax,
+                   ec="#005752", zorder=1, lw=1)
 ax.scatter(prime(df_geode_w["d18O"].mean()), df_geode_w["Dp17O"].mean(),
            fc="#005752", marker="X", ec="k", zorder=10,
            label="measured geode water")

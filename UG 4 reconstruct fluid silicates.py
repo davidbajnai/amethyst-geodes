@@ -72,57 +72,68 @@ ax1.scatter(prime(df["d18O"]), Dp17O(df["d17O"], df["d18O"]),
             marker="o", fc="#1455C0", ec="w", lw=0.5,
             zorder=10, label="samples")
 
-# Create an empty dataframe to store the modeled values
-modeldf = pd.DataFrame(columns=["d18Ow", "d17Ow", "Dp17Ow", "sum_distance", "avg_temperature", "min_temperature", "max_temperature"])
 
-# Loop over a range of d18Ow and Dp17Ow values
-T_min, T_max = 0, 300  # temperature range for the equilibrium calculations
+# Range of d18Ow and Dp17Ow values to consider in the model
 d18Ow_min, d18Ow_max, d18Ow_step = -16, -4, 0.2
-Dp17Ow_min, Dp17Ow_max, Dp17Ow_step = 10, 70, 2
+Dp17Ow_min, Dp17Ow_max, Dp17Ow_step = 10, 70, 0.5
+
+# Temperature range for the equilibrium calculations
+T_min, T_max = 0, 300
+equilibrium_temperatures = np.arange(T_min, T_max + 1, 1) + 273.15
 
 model_length = ((d18Ow_max-d18Ow_min)/d18Ow_step) * ((Dp17Ow_max-Dp17Ow_min)/Dp17Ow_step)
 print(f"Modeling {model_length:.0f} fluids")
 
-for d18Ow in tqdm(np.arange(d18Ow_min, d18Ow_max, d18Ow_step)):
-    for Dp17Ow in np.arange(Dp17Ow_min, Dp17Ow_max, Dp17Ow_step):
+# Create an empty dataframe to store the modeled values
+modeldf = pd.DataFrame(columns=["d18Ow", "d17Ow", "Dp17Ow", "sum_distance",
+                       "avg_temperature", "min_temperature", "max_temperature"])
 
-        d17Ow = d17O(d18Ow, Dp17Ow)
+with tqdm(total=model_length) as pbar:
+    for d18Ow in np.arange(d18Ow_min, d18Ow_max, d18Ow_step):
+        for Dp17Ow in np.arange(Dp17Ow_min, Dp17Ow_max, Dp17Ow_step):
 
-        # Calculate equilibrium points between 0 °C and 300 °C with 1 degree resolution
-        equilibrium_temperatures = np.arange(T_min, T_max+1, 1) + 273.15
-        d18O_mineral = d18O_qz(equilibrium_temperatures, d18Ow)
-        d17O_mineral = d17O_qz(equilibrium_temperatures, d17Ow)
-        mineral_equilibrium = np.array([d18O_mineral, Dp17O(d17O_mineral, d18O_mineral), equilibrium_temperatures]).T
+            d17Ow = d17O(d18Ow, Dp17Ow)
 
-        ax1.plot(prime(mineral_equilibrium[:, 0]), mineral_equilibrium[:, 1],
-                 ls="solid", color="grey", alpha=0.3, label="quartz equilibrium", zorder=-1)
-        ax1.scatter(prime(d18Ow), Dp17O(d17Ow, d18Ow),
-                    marker="d", fc="w", ec="k", label=f"model fluids ($\\mathit{{N}}$ = {model_length:.0f})")
+            # Calculate equilibrium points
+            d18O_mineral = d18O_qz(equilibrium_temperatures, d18Ow)
+            d17O_mineral = d17O_qz(equilibrium_temperatures, d17Ow)
+            mineral_equilibrium = np.array([d18O_mineral, Dp17O(
+                d17O_mineral, d18O_mineral), equilibrium_temperatures]).T
 
-        data = []
-        for i, row in df.iterrows():
-            A = np.array([row["d18O"], row["Dp17O"]])
-            distances = np.linalg.norm(mineral_equilibrium[:, :2] - A, axis=1)
-            mindist = np.min(distances)
-            closest_index = np.argmin(distances)
-            closest_point = mineral_equilibrium[closest_index]
-            tempera = closest_point[2]
-            ax1.plot([prime(A[0]), prime(closest_point[0])], [A[1], closest_point[1]],
-                     color="#63A615", ls="-", linewidth=0.4, alpha=0.3,
-                     label="distance to closest equi. point")
-            data.append({"distances": mindist, "temperatures": tempera})
+            ax1.plot(prime(mineral_equilibrium[:, 0]), mineral_equilibrium[:, 1],
+                     ls="solid", color="grey", alpha=0.3, zorder=-1,
+                     label="quartz equilibrium")
+            ax1.scatter(prime(d18Ow), Dp17O(d17Ow, d18Ow),
+                        marker="d", fc="w", ec="k",
+                        label=f"model fluids ($\\mathit{{N}}$ = {model_length:.0f})")
 
-        modeldfa = pd.DataFrame(data)
+            data = []
+            for i, row in df.iterrows():
+                A = np.array([row["d18O"], row["Dp17O"]])
+                distances = np.linalg.norm(mineral_equilibrium[:, :2] - A, axis=1)
+                mindist = np.min(distances)
+                closest_index = np.argmin(distances)
+                closest_point = mineral_equilibrium[closest_index]
+                tempera = closest_point[2]
+                ax1.plot([prime(A[0]), prime(closest_point[0])], [A[1], closest_point[1]],
+                        color="#63A615", ls="-", linewidth=0.4, alpha=0.3,
+                        label="distance to closest equi. point")
+                data.append({"distances": mindist, "temperatures": tempera})
 
-        modeldf = modeldf.dropna(axis=1, how='all')
-        modeldf = pd.concat([modeldf, pd.DataFrame({"d17Ow": [d17Ow], "Dp17Ow": [Dp17Ow], "d18Ow": [d18Ow],
-                                                    "sum_distance": [np.sum(modeldfa["distances"])],
-                                                    "avg_temperature": [np.mean(modeldfa["temperatures"])-273.15],
-                                                    "min_temperature": [np.min(modeldfa["temperatures"])-273.15],
-                                                    "max_temperature": [np.max(modeldfa["temperatures"])-273.15]}
-                                                   )
-                             ], ignore_index=True)
-        modeldfa = []
+            modeldfa = pd.DataFrame(data)
+
+            modeldf = modeldf.dropna(axis=1, how='all')
+            modeldf = pd.concat([modeldf, pd.DataFrame({"d17Ow": [np.round(d17Ow, 4)],
+                                                        "d18Ow": [d18Ow],
+                                                        "Dp17Ow": [Dp17Ow],
+                                                        "sum_distance": [np.round(np.sum(modeldfa["distances"]), 4)],
+                                                        "avg_temperature": [np.round(np.mean(modeldfa["temperatures"])-273.15, 1)],
+                                                        "min_temperature": [np.min(modeldfa["temperatures"])-273.15],
+                                                        "max_temperature": [np.max(modeldfa["temperatures"])-273.15]}
+                                                    )
+                                ], ignore_index=True)
+            modeldfa = []
+            pbar.update(1)
 
 print("Modeling complete")
 
@@ -279,9 +290,8 @@ ax4.text(0.02, 0.98, "d", fontsize=14, fontweight="bold",
 
 print("Plot 4 complete")
 
-plt.savefig(os.path.join(sys.path[0], "UG Figure S6.png"))
+plt.savefig(os.path.join(sys.path[0], "UG Figure S5.png"))
 print("Figure saved")
 
-modeldf = round(modeldf, 4)
 modeldf.to_csv(os.path.join(sys.path[0], "UG fluid model amethyst.csv"), index=False)
 print("Modeled fluid values exported to CSV")

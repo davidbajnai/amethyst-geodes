@@ -3,7 +3,7 @@
 # of the geode calcites with literature data
 
 # INPUT:  UG literature data.csv (data from Gilg et al. (2003) and Morteani et al. (2010))
-#         UG Table SX.csv (d18O and d13C data from mass spectrometry)
+#         UG Table S5.csv (d18O and d13C data from mass spectrometry)
 
 # OUTPUT: UG Figure 12.png
 
