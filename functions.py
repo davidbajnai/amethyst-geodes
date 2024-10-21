@@ -38,7 +38,7 @@ def mix_d17O(d18O_A, d17O_A=None, D17O_A=None, d18O_B=None, d17O_B=None, D17O_B=
     return df
 
 
-def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
+def confidence_ellipse(x, y, ax, n_std=2, facecolor='none', **kwargs):
     """
     Create a plot of the covariance confidence ellipse of *x* and *y*.
 
@@ -56,39 +56,48 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     **kwargs
         Forwarded to `~matplotlib.patches.Ellipse`
 
-    Returns
-    -------
-    matplotlib.patches.Ellipse
+    Returns:
+    --------
+    ell_radius_x, ell_radius_y : float
+        Radii of the ellipse before scaling (raw covariance radii).
+    scale_x, scale_y : float
+        Scaled semi-major and semi-minor axes (after applying standard deviations).
+    mean_x, mean_y : float
+        Mean of x and y (center of the ellipse).
+    transform : matplotlib.transforms.Affine2D
+        Full affine transformation applied to the ellipse.
     """
     if x.size != y.size:
         raise ValueError("x and y must be the same size")
 
     cov = np.cov(x, y)
     pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
-    # Using a special case to obtain the eigenvalues of this
-    # two-dimensional dataset.
+
+    # Ellipse radii before scaling (raw covariance ellipse)
     ell_radius_x = np.sqrt(1 + pearson)
     ell_radius_y = np.sqrt(1 - pearson)
+
+    # Create the ellipse
     ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
                       facecolor=facecolor, **kwargs)
 
-    # Calculating the standard deviation of x from
-    # the squareroot of the variance and multiplying
-    # with the given number of standard deviations.
+    # Standard deviations and scaling
     scale_x = np.sqrt(cov[0, 0]) * n_std
     mean_x = np.mean(x)
-
-    # calculating the standard deviation of y ...
     scale_y = np.sqrt(cov[1, 1]) * n_std
     mean_y = np.mean(y)
 
+    # Apply the transformation (rotation, scaling, translation)
+    rotation = np.deg2rad(45)  # Rotation in radians
     transf = transforms.Affine2D() \
-        .rotate_deg(45) \
+        .rotate(rotation) \
         .scale(scale_x, scale_y) \
         .translate(mean_x, mean_y)
 
     ellipse.set_transform(transf + ax.transData)
-    return ax.add_patch(ellipse)
+    ax.add_patch(ellipse)
+
+    return ell_radius_x, ell_radius_y, scale_x, scale_y, mean_x, mean_y, transf
 
 
 def apply_theta(d18O_A, Dp17O_A, d18O_B=None, shift_d18O=None, theta=None):

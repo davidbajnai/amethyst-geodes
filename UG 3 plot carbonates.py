@@ -1,5 +1,5 @@
 # This code is used to:
-# Plot the geolde calcite data in triple oxygen isotope space
+# Plot the geode calcite data in triple oxygen isotope space
 
 # INPUT:  UG Table S4.csv (carbonate data)
 #         UG fluid model late calcite.csv (best-fit compositions)
@@ -30,19 +30,23 @@ plt.rcParams['savefig.transparent'] = False
 plt.rcParams['mathtext.default'] = 'regular'
 
 
-# Functions that make life easier
+# Define functions
 
 def a18_cc(T):
+
+    return np.exp((17.57 * 1000 / T - 29.13) / 1000)     # Daeron et al. (2019) – calcite
+
+    # Alternative equations:
 
     # Hayles et al. (2018) - calcite
     # B_calcite = 7.027321E+14 / T**7 + -1.633009E+13 / T**6 + 1.463936E+11 / T**5 + -5.417531E+08 / T**4 + -4.495755E+05 / T**3  + 1.307870E+04 / T**2 + -5.393675E-01 / T + 1.331245E-04
     # B_water = -6.705843E+15 / T**7 + 1.333519E+14 / T**6 + -1.114055E+12 / T**5 + 5.090782E+09 / T**4 + -1.353889E+07 / T**3 + 2.143196E+04 / T**2 + 5.689300 / T + -7.839005E-03
     # return np.exp(B_calcite) / np.exp(B_water)
 
-    # Alternative equations
     # return np.exp((2.84 * 10**6 / T**2 - 2.96) / 1000) # Wostbrock et al. (2020) – calcite
+
     # return np.exp((17.88 * 1000 / T - 31.14) / 1000)   # Kim et al. (2007) – aragonite
-    return np.exp((17.57 * 1000 / T - 29.13) / 1000)     # Daeron et al. (2019) – calcite
+
     # return 0.0201 * (1000 / T) + 0.9642                # Guo and Zhou (2019) – aragonite
 
 
@@ -55,9 +59,12 @@ def theta_cc(T):
     a18 = np.exp(B_calcite) / np.exp(B_water)
     return K_calcite + (K_calcite-K_water) * (B_water / np.log(a18))
 
-    # Alternative equations
+    # Alternative equations:
+
     # return -1.39 / T + 0.5305                 # Wostbrock et al. (2020) – calcite
+
     # return 59.1047/T**2 + -1.4089/T + 0.5297  # Guo and Zhou (2019) – aragonite
+
     # return -1.53 / T + 0.5305                 # Wostbrock et al. (2020) – aragonite
 
 
@@ -120,8 +127,8 @@ def plot_calcite_equilibrium(Dp17Ow, d18Ow, Tmin, Tmax, ax, fluid_name="precipit
 
 # Read in data
 df_cal = pd.read_csv(os.path.join(sys.path[0], "UG Table S4.csv"))
-meteoricwdf = pd.read_csv(os.path.join(sys.path[0], "meteoric_water.csv"))
-UYFARwdf = pd.read_csv(os.path.join(sys.path[0], "UG Table S2.csv"))
+df_meteoric_w = pd.read_csv(os.path.join(sys.path[0], "meteoric_water.csv"))
+df_geode_w = pd.read_csv(os.path.join(sys.path[0], "UG Table S2.csv"))
 df_modeled_fluids = pd.read_csv(os.path.join(sys.path[0], "UG fluid model late calcite.csv"))
 evap = pd.read_csv(os.path.join(sys.path[0], "evaporation.csv"))
 
@@ -129,15 +136,15 @@ evap = pd.read_csv(os.path.join(sys.path[0], "evaporation.csv"))
 fig, ax = plt.subplots()
 
 # Plot meteoric waters
-ax.scatter(prime(meteoricwdf["d18O"]), Dp17O(meteoricwdf["d17O"], meteoricwdf["d18O"]),
+ax.scatter(prime(df_meteoric_w["d18O"]), Dp17O(df_meteoric_w["d17O"], df_meteoric_w["d18O"]),
            marker="+", c="#cacaca", zorder=-10,
            label="modern meteoric waters")
 
 # Plot measured UYFAR waters
-confidence_ellipse(prime(UYFARwdf["d18O"]), UYFARwdf["Dp17O"], ax, n_std=2,
+confidence_ellipse(prime(df_geode_w["d18O"]), df_geode_w["Dp17O"], ax, n_std=2,
                    ec="#005752", zorder=10, lw=1)
 
-dfeq = plot_calcite_equilibrium(UYFARwdf["Dp17O"].mean(), UYFARwdf["d18O"].mean(), 0, 80,
+dfeq = plot_calcite_equilibrium(df_geode_w["Dp17O"].mean(), df_geode_w["d18O"].mean(), 0, 80,
                                 ax, fluid_name="measured geode water", color="#005752", highlight=False)
     
 
@@ -246,7 +253,7 @@ ax.text(5, -20, "evaporation",
 ax.scatter(prime(5.7), -51,
            marker="*", fc="k", ec = "w", s = 60,
            label="MORB")
-MORB_mix = mix_d17O(d18O_A=UYFARwdf["d18O"].mean(), D17O_A=UYFARwdf["Dp17O"].mean(),
+MORB_mix = mix_d17O(d18O_A=df_geode_w["d18O"].mean(), D17O_A=df_geode_w["Dp17O"].mean(),
                     d18O_B = 5.7, D17O_B = -51,
                     step=100)
 ax.plot(prime(MORB_mix["mix_d18O"][:-10]), MORB_mix["mix_Dp17O"][:-10], c="#2A7230", zorder=0, lw=3)

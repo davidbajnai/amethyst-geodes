@@ -28,6 +28,7 @@ plt.rcParams["savefig.bbox"] = "tight"
 plt.rcParams['savefig.transparent'] = False
 plt.rcParams['mathtext.default'] = 'regular'
 
+# Define functions
 
 # Function to print info for scaled samples
 def print_info(df, d18O_col, Dp17O_col, sample_name):
@@ -142,8 +143,7 @@ def scaleData(df, project):
         ax.text(0.98, 0.98, SuppFig[FigNum], size=14, ha="right", va="top",
                 transform=ax.transAxes, fontweight="bold")
 
-        plt.savefig(sys.path[0] + "/" +
-                    f"{project} Figure S3{SuppFig[FigNum]}.png")
+        plt.savefig(os.path.join(sys.path[0], f"{project} Figure S3{SuppFig[FigNum]}.png"))
         plt.close()
 
         # Exclude the standards from the exported dataframe
@@ -176,7 +176,7 @@ def average_data(df):
 # Here we go!
 
 # Scale the data
-df = scaleData(pd.read_csv(os.path.join(sys.path[0], "UG all replicates.csv")), "UG")
+df = scaleData(pd.read_csv(os.path.join(sys.path[0], "UG all carbonate replicates.csv")), "UG")
 
 # Average the data
 df_avg = average_data(df)
@@ -198,10 +198,10 @@ fig, (ax1, ax2) = plt.subplots(1, 2)
 # Assign colors and markers to samples
 df.sort_values(by="SampleName", inplace=True)
 categories = df["SampleName"].unique()
-markers = dict(zip(categories, ["o", "s", "D", "^", "v", "X", "P", "*", "o",
-               "s", "D", "^", "v", "X", "P", "*", "o", "s", "D", "^", "v", "X", "P", "*"]))
-colors = dict(zip(categories, plt.cm.tab20(
-    np.linspace(0, 1, len(categories)))))
+markers = dict(zip(categories,
+                   ["o", "s", "D", "^", "v", "X", "P", "*"]*4))
+colors = dict(zip(categories,
+                  plt.cm.tab20(np.linspace(0, 1, len(categories)))))
 
 
 # Subplot A
@@ -214,7 +214,7 @@ for cat in categories:
                  yerr=df["Dp17OError"], xerr=df["d18OError"],
                  fmt="none", color="#cacaca", zorder=0)
 
-ax1.text(0.98, 0.98, "A", size=14, ha="right", va="top",
+ax1.text(0.98, 0.98, "a", size=14, ha="right", va="top",
          transform=ax1.transAxes, fontweight="bold")
 
 ax1.set_ylabel("$\Delta\prime^{17}$O (ppm, CO$_2$)")
@@ -233,7 +233,7 @@ for cat in categories:
                  yerr=df_avg["Dp17O_error"], xerr=df_avg["d18O_error"],
                  fmt="none", color="#cacaca", zorder=0)
 
-ax2.text(0.98, 0.98, "B", size=14, ha="right", va="top",
+ax2.text(0.98, 0.98, "b", size=14, ha="right", va="top",
          transform=ax2.transAxes, fontweight="bold")
 
 ax2.set_ylabel("$\Delta\prime^{17}$O (ppm, CO$_2$)")

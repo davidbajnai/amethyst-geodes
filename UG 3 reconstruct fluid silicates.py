@@ -1,9 +1,9 @@
 # This code is used to:
-# Model ambient water oxygen isotope compositions based on the late calcite data
+# Model ambient water oxygen isotope compositions based on the amethyst data
 
-# INPUT:  UG Table S4.csv (carbonate data)
+# INPUT:  UG Table S3.csv (quartz data)
 
-# OUTPUT: UG fluid model late calcite.csv (modeled compositions)
+# OUTPUT: UG fluid model amethyst.csv (modeled compositions)
 
 # >>>>>>>>>
 
@@ -30,65 +30,36 @@ plt.rcParams['mathtext.default'] = 'regular'
 
 # Functions that make life easier
 
-def a18_cc(T):
+def a18_qz(T):
 
-    return np.exp((17.57 * 1000 / T - 29.13) / 1000)   # Daeron et al. (2019) – calcite
+    # Sharp et al. (2016) - Eq. 9
+    return np.exp((4.28 * 10**6 / T**2 - 3.5 * 10**3 / T) / 1000)
 
-    # Alternative equations:
 
-    # Hayles et al. (2018) - calcite
-    # B_calcite = 7.027321E+14 / T**7 + -1.633009E+13 / T**6 + 1.463936E+11 / T**5 + -5.417531E+08 / T**4 + -4.495755E+05 / T**3  + 1.307870E+04 / T**2 + -5.393675E-01 / T + 1.331245E-04
-    # B_water = -6.705843E+15 / T**7 + 1.333519E+14 / T**6 + -1.114055E+12 / T**5 + 5.090782E+09 / T**4 + -1.353889E+07 / T**3 + 2.143196E+04 / T**2 + 5.689300 / T + -7.839005E-03
-    # return np.exp(B_calcite) / np.exp(B_water)
+def theta_qz(T):
     
-    # return np.exp((2.84 * 10**6 / T**2 - 2.96) / 1000) # Wostbrock et al. (2020) – calcite
-
-    # return np.exp((17.88 * 1000 / T - 31.14) / 1000)   # Kim et al. (2007) – aragonite
-
-    # return 0.0201 * (1000 / T) + 0.9642                # Guo and Zhou (2019) – aragonite
+    # Sharp et al. (2016) - Eq. 10
+    return -1.85 / T + 0.5305
 
 
-def theta_cc(T):
-    
-    # Hayles et al. (2018) - calcite
-    K_calcite = 1.019124E+09 / T**5 + -2.117501E+07 / T**4 + 1.686453E+05 / T**3 + -5.784679E+02 / T**2 + 1.489666E-01 / T + 0.5304852
-    B_calcite = 7.027321E+14 / T**7 + -1.633009E+13 / T**6 + 1.463936E+11 / T**5 + -5.417531E+08 / T**4 + -4.495755E+05 / T**3  + 1.307870E+04 / T**2 + -5.393675E-01 / T + 1.331245E-04
-    K_water = 7.625734E+06 / T**5 + 1.216102E+06 / T**4 + -2.135774E+04 / T**3 + 1.323782E+02 / T**2 + -4.931630E-01 / T + 0.5306551
-    B_water = -6.705843E+15 / T**7 + 1.333519E+14 / T**6 + -1.114055E+12 / T**5 + 5.090782E+09 / T**4 + -1.353889E+07 / T**3 + 2.143196E+04 / T**2 + 5.689300 / T + -7.839005E-03
-    a18 = np.exp(B_calcite) / np.exp(B_water)
-    return K_calcite + (K_calcite-K_water) * (B_water / np.log(a18))
-
-    # Alternative equations:
-
-    # return -1.39 / T + 0.5305                 # Wostbrock et al. (2020) – calcite
-
-    # return 59.1047/T**2 + -1.4089/T + 0.5297  # Guo and Zhou (2019) – aragonite
-
-    # return -1.53 / T + 0.5305                 # Wostbrock et al. (2020) – aragonite
+def a17_qz(T):
+    return a18_qz(T)**theta_qz(T)
 
 
-def a17_cc(T):
-    return a18_cc(T)**theta_cc(T)
+def d18O_qz(equilibrium_temperatures, d18Ow):
+    return a18_qz(equilibrium_temperatures) * (d18Ow+1000) - 1000
 
 
-def d18O_cc(equilibrium_temperatures, d18Ow):
-    return a18_cc(equilibrium_temperatures) * (d18Ow+1000) - 1000
+def d17O_qz(equilibrium_temperatures, d17Ow):
+    return a17_qz(equilibrium_temperatures) * (d17Ow+1000) - 1000
 
 
-def d17O_cc(equilibrium_temperatures, d17Ow):
-    return a17_cc(equilibrium_temperatures) * (d17Ow+1000) - 1000
+# Read quartz data from CSV file
+df = pd.read_csv(os.path.join(sys.path[0], "UG Table S3.csv"))
 
-
-# Read calcite data from CSV file
-df = pd.read_csv(os.path.join(sys.path[0], "UG Table S4.csv"))
-
-# Filter data if needed
-df = df[df["Type"] == "late"]
-
-# Rename columns
-df["Dp17O"] = df["Dp17O_AC"]
-df["d18O"] = df["d18O_AC"]
-df["d17O"] = df["d17O_AC"]
+# Filter data for amethyst
+df = df[df["Type"] == "amethyst"]
+df["Dp17O"] = Dp17O(df["d17O"], df["d18O"])
 print(df)
 
 # Plot parameters
@@ -106,8 +77,8 @@ modeldf = pd.DataFrame(columns=["d18Ow", "d17Ow", "Dp17Ow", "sum_distance", "avg
 
 # Loop over a range of d18Ow and Dp17Ow values
 T_min, T_max = 0, 300  # temperature range for the equilibrium calculations
-d18Ow_min, d18Ow_max, d18Ow_step = -9, 3, 0.2
-Dp17Ow_min, Dp17Ow_max, Dp17Ow_step = -50, 10, 0.5
+d18Ow_min, d18Ow_max, d18Ow_step = -16, -4, 0.2
+Dp17Ow_min, Dp17Ow_max, Dp17Ow_step = 10, 70, 2
 
 model_length = ((d18Ow_max-d18Ow_min)/d18Ow_step) * ((Dp17Ow_max-Dp17Ow_min)/Dp17Ow_step)
 print(f"Modeling {model_length:.0f} fluids")
@@ -119,12 +90,12 @@ for d18Ow in tqdm(np.arange(d18Ow_min, d18Ow_max, d18Ow_step)):
 
         # Calculate equilibrium points between 0 °C and 300 °C with 1 degree resolution
         equilibrium_temperatures = np.arange(T_min, T_max+1, 1) + 273.15
-        d18O_mineral = d18O_cc(equilibrium_temperatures, d18Ow)
-        d17O_mineral = d17O_cc(equilibrium_temperatures, d17Ow)
+        d18O_mineral = d18O_qz(equilibrium_temperatures, d18Ow)
+        d17O_mineral = d17O_qz(equilibrium_temperatures, d17Ow)
         mineral_equilibrium = np.array([d18O_mineral, Dp17O(d17O_mineral, d18O_mineral), equilibrium_temperatures]).T
 
         ax1.plot(prime(mineral_equilibrium[:, 0]), mineral_equilibrium[:, 1],
-                 ls="solid", color="grey", alpha=0.3, label="carbonate equilibrium", zorder=-1)
+                 ls="solid", color="grey", alpha=0.3, label="quartz equilibrium", zorder=-1)
         ax1.scatter(prime(d18Ow), Dp17O(d17Ow, d18Ow),
                     marker="d", fc="w", ec="k", label=f"model fluids ($\\mathit{{N}}$ = {model_length:.0f})")
 
@@ -175,8 +146,8 @@ ax2.scatter(modeldf["sum_distance"], modeldf["avg_temperature"],
             marker="d", fc="w", ec="k", label=f"model fluids ($\\mathit{{N}}$ = {model_length:.0f})")
 
 # Define the cut-off values
-T_cut_lower = 33
-T_cut_upper = 46
+T_cut_lower = 19
+T_cut_upper = 30
 Dist_cut = modeldf['sum_distance'].quantile(0.10)
 
 # Display the cut-off values
@@ -227,8 +198,8 @@ for i, row in modeldf.iterrows():
 
     # Plot the equilibrium line between 0–1000°C
     equilibrium_temperatures = np.arange(T_min,T_max+1,1) + 273.15
-    d18O_mineral = d18O_cc(equilibrium_temperatures, row["d18Ow"])
-    d17O_mineral = d17O_cc(equilibrium_temperatures, row["d17Ow"])
+    d18O_mineral = d18O_qz(equilibrium_temperatures, row["d18Ow"])
+    d17O_mineral = d17O_qz(equilibrium_temperatures, row["d17Ow"])
     ax3.scatter(prime(d18O_mineral), Dp17O(d17O_mineral, d18O_mineral),
             s=0.5, marker="o", fc = "k", ec="none", alpha=0.3,
             label=f"equilibrium ({np.min(equilibrium_temperatures-273.15):.0f}–{np.max(equilibrium_temperatures-273.15):.0f} °C)")
@@ -283,16 +254,16 @@ ax4.text(0.05, 0.2,
          color="k", ha="left", va="top", transform=ax4.transAxes)
 
 equilibrium_temperatures = np.arange(T_min, T_max+1, 1) + 273.15
-d18O_mineral = d18O_cc(equilibrium_temperatures, mean_d18Ow)
-d17O_mineral = d17O_cc(equilibrium_temperatures, mean_d17Ow)
+d18O_mineral = d18O_qz(equilibrium_temperatures, mean_d18Ow)
+d17O_mineral = d17O_qz(equilibrium_temperatures, mean_d17Ow)
 ax4.plot(prime(d18O_mineral), Dp17O(d17O_mineral, d18O_mineral),
          ":", lw=0.5, zorder=1, color="k",
          label=f"equilibrium ({np.min(equilibrium_temperatures-273.15):.0f}–{np.max(equilibrium_temperatures-273.15):.0f} °C)")
 
 
 equilibrium_temperatures = np.arange(10, 81, 1) + 273.15
-d18O_mineral = d18O_cc(equilibrium_temperatures, mean_d18Ow)
-d17O_mineral = d17O_cc(equilibrium_temperatures, mean_d17Ow)
+d18O_mineral = d18O_qz(equilibrium_temperatures, mean_d18Ow)
+d17O_mineral = d17O_qz(equilibrium_temperatures, mean_d17Ow)
 ax4.plot(prime(d18O_mineral), Dp17O(d17O_mineral, d18O_mineral),
          "-", lw=2, mec="white", zorder=1, color="k",
          label=f"equilibrium ({np.min(equilibrium_temperatures-273.15):.0f}–{np.max(equilibrium_temperatures-273.15):.0f} °C)")
@@ -308,7 +279,7 @@ ax4.text(0.02, 0.98, "d", fontsize=14, fontweight="bold",
 
 print("Plot 4 complete")
 
-plt.savefig(os.path.join(sys.path[0], "UG Figure S5.png"))
+plt.savefig(os.path.join(sys.path[0], "UG Figure S6.png"))
 print("Figure saved")
 
 modeldf = round(modeldf, 4)
